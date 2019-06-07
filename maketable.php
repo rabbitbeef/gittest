@@ -3,23 +3,17 @@
 function maketable($array)
 {
     $result = '<table border = "1"><tr>';
-
     //thの作成
     $keys = array_keys($array[0]);
     foreach ($keys as $value) {
         $result .= '<th>' . $value . '</th>';
     }
     $result .= '</tr>';
-
     $result .= maketd($array);
-
     $result .= '</table>';
-
     return $result;
 }
-
-//<tr><td>の作成
-//thを英語にしないときに単体で用いる。
+//tableの一行の作成。<tr><td>…</td></tr>出力。
 function maketd($array)
 {
     $result = null;
@@ -31,17 +25,16 @@ function maketd($array)
         }
         $result .= '</tr>';
     }
-
     return $result;
 }
-
 //詳細付きのテーブル作成
+//$arrayは検索結果の配列。
+//2人ならば$arrayに[0]=>[name:"aaa"   adress:"aa"  mail:"aa"] [1]=>[name:"aaa"   adress:"aa"  mail:"aa"]
+//となる。
 function maketable_detail($array)
 {
     $add = '詳細';
-
     $result = '<table border = "1"><tr>';
-
     //thの作成
     $keys = array_keys($array[0]);
     foreach ($keys as $value) {
@@ -49,42 +42,30 @@ function maketable_detail($array)
     }
     $result .= '<th>' . $add . '</th>';
     $result .= '</tr>';
-
-    //詳細付き行列の作成
-    //$iは呼び出し回数。行が複数表示の場合にsubmitで異なるformを呼び出す際に用いる。
-    if(Count($array)>1){
+    //以下trの作成
+    //foreach内部で検索結果の数を記録し、番号付けする。
     $i=0;
-    }
-    else{
-        $i = null;
-    }
     foreach ($array as $value) {
+        //tdの中身
+        $addtd = null;
+        
+        
         $result .= '<tr>';
+        //テーブルの中身の作成
         foreach ($value as $content) {
             $result .= '<td>' . $content . '</td>';
         }
-
-        //フォーム作成
-        $addtag = '<form method = "post" name = "detail" action="detail.php">';
-
-        //hiddenとしてname等のデータを詳細画面にポストするためのタグを追加
-        foreach($value as $key => $value){
-        $addtag .= '<input type="hidden" name = '.$key.' value = '.$value.'>';
+        //hiddenとしてname等のデータを詳細画面にポストするためのtdを追加。
+        //$iを付与して番号を識別
+        foreach ($value as $key => $value) {
+            $addtd .= '<input type="hidden" name = '.$key.$i. ' value = ' . $value . '>';
         }
-        //detail.phpにて送信元を分別するためのname valueの追加。
-        $addtag .= '<input type="hidden" name = "detail" value = "detail">';
-        //リンクにpostを埋め込む。$iを使用。
-        if(isset($i)){
-            $addtag .= '<a href = "javascript:document.detail['.$i.'].submit()">' . $add . '</a></form>';
-            $i++;
-        }else{
-            $addtag .= '<a href = "javascript:document.detail.submit()">' . $add . '</a></form>';
-        }
-        $result .= '<td>' . $addtag . '</td>';
+        //リンクにpostを埋め込む。valueに$iを使用して番号を識別
+        //classのdetail_submitをjq.jsのjqueryでajax通信させる。
+        $addtd .= '<a name="detail_submit" value=' . $i . '>' . $add . '</a>';
+        $result .= '<td>' . $addtd . '</td>';
         $result .= '</tr>';
     }
-
     $result .= '</table>';
-
     return $result;
 }
